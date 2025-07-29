@@ -1,7 +1,7 @@
 streamlit
-psycopg2
 python-dotenv
+supabase
 requests
 pandas
 pydeck
-supabase
+
