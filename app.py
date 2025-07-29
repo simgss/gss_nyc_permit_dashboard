@@ -10,15 +10,10 @@ sys.path.append(str(pathlib.Path(__file__).resolve().parents[1]))
 
 from backend.etl import fetch_and_store_permits
 from backend.emailer import send_confirmation_email
+from backend.db import supabase
 
-from supabase import create_client
 
-# Load environment variables
-load_dotenv()
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
 
-supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # Page config
 st.set_page_config(page_title="NYC Permit Dashboard", layout="centered")
