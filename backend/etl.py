@@ -4,8 +4,13 @@ import uuid
 from datetime import datetime
 from dotenv import load_dotenv
 from pathlib import Path
-from backend.emailer import send_confirmation_email
-from backend.db import supabase
+import sys
+
+# Add backend directory to the Python path
+sys.path.append(str(Path(__file__).resolve().parent))
+
+from emailer import send_confirmation_email
+from db import supabase
 
 
 # Load environment variables
@@ -33,18 +38,19 @@ def geocode_address(house_number, street, borough):
         data = resp.json().get("address", {})
         return data.get("latitude"), data.get("longitude")
     except Exception as e:
-        print(f"⚠️ Geocoding failed: {e}")
+        print(f" Geocoding failed: {e}")
         return None, None
 
 # --- Main ETL Function ---
-def fetch_and_store_permits(permit_type, start_date, end_date, user_email, city, zip_code):
+def fetch_and_store_permits(permit_type, start_date, end_date, user_email, city, zip_code, property_type=None, work_category=None):
+
     print(f"Starting ETL for {permit_type} from {start_date} to {end_date} for {user_email}")
-    print(f"📍 City: {city} | ZIP: {zip_code if zip_code else 'N/A'}")
+    print(f" City: {city} | ZIP: {zip_code if zip_code else 'N/A'}")
 
     try:
         # NYC Open Data (only if city is NYC)
         if city != "New York City":
-            return f"❌ Currently only NYC is supported. You selected: {city}"
+            return f" Currently only NYC is supported. You selected: {city}"
 
         url = "https://data.cityofnewyork.us/resource/rbx6-tga4.json"
         filters = f"work_type = '{permit_type}' AND issued_date BETWEEN '{start_date}T00:00:00' AND '{end_date}T23:59:59'"
@@ -57,9 +63,9 @@ def fetch_and_store_permits(permit_type, start_date, end_date, user_email, city,
         data = response.json()
 
         if not data:
-            return "⚠️ No permits found for the selected filters."
+            return " No permits found for the selected filters."
 
-        print(f"✅ Found {len(data)} permits.")
+        print(f" Found {len(data)} permits.")
         inserted_count = 0
 
         for permit in data:
@@ -72,6 +78,9 @@ def fetch_and_store_permits(permit_type, start_date, end_date, user_email, city,
             record = {
                 "id": str(uuid.uuid4()),
                 "user_email": user_email,
+                "city": city,
+                "property_type": property_type,
+                "work_category": work_category,
                 "zip_code": zip_code,
                 "permit_type": permit_type,
                 "start_date": start_date,
@@ -120,14 +129,25 @@ def fetch_and_store_permits(permit_type, start_date, end_date, user_email, city,
 
             supabase.table("permits").insert(record).execute()
             inserted_count += 1
-            print(f"✅ Inserted permit {permit.get('job_filing_number')}")
+            print(f" Inserted permit {permit.get('job_filing_number')}")
 
-        # ✅ Send confirmation
+        #  Send confirmation
         send_confirmation_email(user_email, inserted_count)
 
-        return f"✅ Inserted {inserted_count} permits."
+        return f" Inserted {inserted_count} permits."
     
     except Exception as e:
-        print(f"❌ Unexpected error: {e}")
-        return f"❌ Error: {e}"
+        print(f" Unexpected error: {e}")
+        return f" Error: {e}"
+
+if __name__ == "__main__":
+    result = fetch_and_store_permits(
+        permit_type="General Construction",  # try just "GC"
+        start_date="2024-01-01",
+        end_date="2025-07-28",
+        user_email="bpushparathna@gmail.com",
+        city="New York City",
+        zip_code=None  # <== REMOVE ZIP to get more results
+    )
+    print(result)
 
