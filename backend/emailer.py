@@ -11,7 +11,7 @@ SENDER_PASSWORD = os.getenv("SENDER_PASSWORD") # e.g., Gmail App Password (not r
 
 def send_confirmation_email(receiver_email, permit_count):
     try:
-        subject = "✅ NYC Permit Dashboard - Data Ready"
+        subject = " NYC Permit Dashboard - Data Ready"
         body = f"""
         Hi,
 
@@ -20,7 +20,7 @@ def send_confirmation_email(receiver_email, permit_count):
           {permit_count} permits were inserted into the dashboard.
 
         You can now log in to view your data at:
-        👉 https://your-dashboard-url.streamlit.app
+         https://your-dashboard-url.streamlit.app
 
         Regards,  
         NYC Permit Dashboard Team
@@ -36,7 +36,7 @@ def send_confirmation_email(receiver_email, permit_count):
             server.login(SENDER_EMAIL, SENDER_PASSWORD)
             server.send_message(msg)
 
-        print(f"📧 Confirmation sent to {receiver_email}")
+        print(f" Confirmation sent to {receiver_email}")
     except Exception as e:
-        print(f"⚠️ Email error: {e}")
+        print(f" Email error: {e}")
 
