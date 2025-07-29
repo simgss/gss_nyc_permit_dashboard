@@ -9,6 +9,8 @@ import pathlib
 sys.path.append(str(pathlib.Path(__file__).resolve().parents[1]))
 
 from backend.etl import fetch_and_store_permits
+from backend.emailer import send_confirmation_email
+
 from supabase import create_client
 
 # Load environment variables
