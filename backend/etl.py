@@ -3,19 +3,19 @@ import requests
 import uuid
 from datetime import datetime
 from dotenv import load_dotenv
-from supabase import create_client, Client
 from pathlib import Path
 from backend.emailer import send_confirmation_email
+from backend.db import supabase
+
 
 # Load environment variables
 env_path = Path(__file__).resolve().parents[1] / '.env'
 load_dotenv(dotenv_path=env_path)
 
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+
 GEOCLIENT_API_KEY = os.getenv("GEOCLIENT_API_KEY")
 
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+
 
 # --- NYC Geoclient ---
 def geocode_address(house_number, street, borough):
