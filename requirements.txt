@@ -1,9 +1,0 @@
-streamlit
-pandas
-pydeck
-python-dotenv
-requests
-supabase-py
-email-validator
-
-
